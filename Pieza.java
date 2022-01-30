@@ -127,9 +127,10 @@ public abstract class Pieza {
      * @param x La columna donde se quiere mover
      * @param y La fila donde se quiere mover
      * @param tablero Un arreglo con la posicion de todas las piezas
+     * @param Un booleano que dice si la computadora esta jugando o no
      * @return Un booleano que dice si se pudo mover o no
      */
-    public boolean mover(int x, int y, Pieza[][] tablero){
+    public boolean mover(int x, int y, Pieza[][] tablero, boolean com){
         try {
 
             Pieza nuevaPza = tablero[y][x];
@@ -153,7 +154,7 @@ public abstract class Pieza {
 
                     //Comprueba si hubo coronacion
                     if(this.tipo == 'p' && (this.y == 0 || this.y == 5)){
-                        coronar(tablero);
+                        coronar(tablero, com);
                     }
 
                     return true;
@@ -242,7 +243,7 @@ public abstract class Pieza {
 
                         //Comprueba si hubo coronacion
                         if(this.tipo == 'p' && (this.y == 0 || this.y == 5)){
-                        coronar(tablero);
+                        coronar(tablero, com);
                     }
                         
                         return true;
@@ -262,8 +263,11 @@ public abstract class Pieza {
         }
     }
 
-
-    public void coronar(Pieza[][] tablero){
+    /**Metodo para coronar un peon
+     * @param tablero El arreglo con todas las piezas
+     * @param com Un booleano que dice si esta jugando la computadora o o
+     */
+    public void coronar(Pieza[][] tablero, boolean com){
         Scanner sc = new Scanner(System.in);
 
         //Descuenta 1 al numero de peones
@@ -277,93 +281,103 @@ public abstract class Pieza {
 
         System.out.println("Coronaste al peon. ¿Cual pieza quieres? (Escribe su letra)");
 
+        //Si es turno de la computadora
+        if(!color && com){
+            //Cambia la pieza por una reina
+            tablero[y][x] = new Dama(color, x, y);
+            //Aumenta 1 al contador de reinas
+            Contador.ndama += 1;
 
-        do {
-            valido = true;
+        //Si no es turno de la computadora
+        }else{
 
-            try{
+            do {
+                valido = true;
 
-                //Recibe la entrada del usuario
-                switch (sc.nextLine()) {
-                    
-                    //Reina
-                    case "D":
-                        //Cambia las piezas
-                        tablero[y][x] = new Dama(color, x, y);
+                try{
 
-                        //Aumenta 1 al contador de las reinas
-                        if(color){
-                            Contador.bdama += 1;
-                        }else{
-                            Contador.ndama += 1;
-                        }
-
-                        break;
-
-                    //Rey
-                    case "R":
-                        //Cambia las piezas
-                        tablero[y][x] = new Rey(color, x, y);
-
-                        //Aumenta 1 al contador de los reyes
-                        if(color){
-                            Contador.brey += 1;
-                        }else{
-                            Contador.nrey += 1;
-                        }
-
-                        break;
-
-                    //Torre
-                    case "t":
-                        //Cambia las piezas
-                        tablero[y][x] = new Torre(color, x, y);
-
-                        //Aumenta 1 al contador de las torres
-                        if(color){
-                            Contador.btorres += 1;
-                        }else{
-                            Contador.ntorres += 1;
-                        }
+                    //Recibe la entrada del usuario
+                    switch (sc.nextLine()) {
                         
-                        break;
+                        //Reina
+                        case "D":
+                            //Cambia las piezas
+                            tablero[y][x] = new Dama(color, x, y);
 
-                    //Caballo
-                    case "c":
-                        //Cambia las piezas
-                        tablero[y][x] = new Caballo(color, x, y);
+                            //Aumenta 1 al contador de las reinas
+                            if(color){
+                                Contador.bdama += 1;
+                            }else{
+                                Contador.ndama += 1;
+                            }
 
-                        //Aumenta 1 al contador de los caballos
-                        if(color){
-                            Contador.bcaballos += 1;
-                        }else{
-                            Contador.ncaballos += 1;
-                        }
+                            break;
 
-                        break;
+                        //Rey
+                        case "R":
+                            //Cambia las piezas
+                            tablero[y][x] = new Rey(color, x, y);
 
-                    //Peon
-                    case "p":
-                        System.out.println("No puede ser un peon. Prueba con otra pieza");
-                        valido = false;
-                        break;
-            
-                    //Si no es ninguno de los anteriores
-                    default:
-                        System.out.println("Esa no es una pieza. Intentalo de nuevo");
-                        valido = false;
-                        break;
+                            //Aumenta 1 al contador de los reyes
+                            if(color){
+                                Contador.brey += 1;
+                            }else{
+                                Contador.nrey += 1;
+                            }
+
+                            break;
+
+                        //Torre
+                        case "t":
+                            //Cambia las piezas
+                            tablero[y][x] = new Torre(color, x, y);
+
+                            //Aumenta 1 al contador de las torres
+                            if(color){
+                                Contador.btorres += 1;
+                            }else{
+                                Contador.ntorres += 1;
+                            }
+                            
+                            break;
+
+                        //Caballo
+                        case "c":
+                            //Cambia las piezas
+                            tablero[y][x] = new Caballo(color, x, y);
+
+                            //Aumenta 1 al contador de los caballos
+                            if(color){
+                                Contador.bcaballos += 1;
+                            }else{
+                                Contador.ncaballos += 1;
+                            }
+
+                            break;
+
+                        //Peon
+                        case "p":
+                            System.out.println("No puede ser un peon. Prueba con otra pieza");
+                            valido = false;
+                            break;
+                
+                        //Si no es ninguno de los anteriores
+                        default:
+                            System.out.println("Esa no es una pieza. Intentalo de nuevo");
+                            valido = false;
+                            break;
+                    }
+                }catch(InputMismatchException e){
+                    System.out.println("Entrada invalida. Intentalo de nuevo");
+                    valido = false;
+
+                }catch(Exception e){
+                    System.out.println("Error. Intentalo de nuevo");
+                    valido = false;
                 }
-            }catch(InputMismatchException e){
-                System.out.println("Entrada invalida. Intentalo de nuevo");
-                valido = false;
 
-            }catch(Exception e){
-                System.out.println("Error. Intentalo de nuevo");
-                valido = false;
-            }
-
-        } while (!valido);
+            } while (!valido);
+        }
     }
 
 

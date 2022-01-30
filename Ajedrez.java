@@ -1,4 +1,5 @@
 import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.Scanner;
 /**
  *Clase para jugar ajedrez en la variante de extincion
@@ -7,7 +8,7 @@ import java.util.Scanner;
  */
 public class Ajedrez {
     /**Metodo principal
-     * @param args Los argumentos
+     * @param args Un arreglo de Strings con los nombres de los jugadores
      */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -15,108 +16,216 @@ public class Ajedrez {
         boolean turno = true;
         boolean valido = false;
         boolean valido2 = false;
+        int coordenada = 0; 
+        int nuevaCoor = 0;
+        String j = "";
+        String j1 = "";
+        String j2 ="";
+        boolean com = false;
+        int turnos = 200;
 
 
+        //Si no hay argumentos
+        if(args.length == 0){
+            //SERIALIZABLEEEEEES
+        
+        //Si hay argumentos
+        }else{
+            //El primero es el jugador 1
+            j1 = args[0];
 
+            //Si no hay otro argumento
+            if(args.length == 1){
+                //El jugador 2 es la computadora
+                j2 = "la computadora";
+                com = true;
+            //Si hay otro argumento
+            }else{
+                //Ese argumento es el jugador 2
+                j2 = args[1];
+                com = false;
+            }
+        
 
-        inicio();
+            Random rn = new Random();
 
-        while(!fin){
-
-            System.out.println("¿Que pieza quieres mover, " + turno + 
-            "? (Escribe columna y fila sin espacios)"); //AQUI VA NOMBRE
-            print();
-            
+            System.out.println("Elige el numero maximo de turnos\n1) 20 turnos\n2) 40 turnos\n3)100 turnos\n0) Salir");
             do{
                 valido = true;
-                try{
-                    //Lee la coordenada que escriba el usuario
-                    int coordenada = sc.nextInt();
-                    Pieza selec = tablero[coordenada % 10][coordenada / 10];
-                    //Verifica que la casilla no este vacia
-                    if(selec != null){
-                        
-                        //Verifica que la pieza sea de la persona a la que le toca
-                        if(turno == selec.getColor()){
 
-                            //Selecciona la pieza
-                            selec.setSeleccion(true);
-                            
-                        }else{
-                            throw new NoPiezaException(); 
-                        }
-                    }else{
-                        throw new NoPiezaException();
+                try {
+                    switch (sc.nextInt()) {
+                        case 1:
+                            turnos = 40;
+                            break;
+
+                        case 2:
+                            turnos = 80;
+                            break;
+
+                        case 3:
+                            turnos = 200;
+                            break;
+
+                        case 0:
+                            System.exit(0);
+                    
+                        default:
+                            System.out.println("Entrada invalida. Intentalo de nuevo");
+                            valido = false;
+                            break;
                     }
-
-
-                        System.out.println("¿A donde quieres moverla?");
-                        print();
-            
-                        do {
-                            valido2 = true;
-                            
-                            try {
-                                //Lee la coordenada que escriba el usuario
-                                int nuevaCoor = sc.nextInt();
-            
-                                //Si no esta en el rango de movimiento de la pieza
-                                if(!selec.mover(nuevaCoor / 10, nuevaCoor % 10, tablero)){
-                                    
-                                    //Si se selecciono otra pieza tuya, se cambia a esa pieza
-                                    if(tablero[nuevaCoor % 10][nuevaCoor / 10].getColor() == turno){
-                                        selec = tablero[nuevaCoor % 10][nuevaCoor / 10];
-
-                                    }
-                                    
-                                    valido2 = false;
-
-
-                                }
-
-                            } catch (NullPointerException e) {
-                                valido2 = false;
-                                sc.nextLine();
-
-                            } catch (Exception e) {
-                                System.out.println("Entrada invalida. Intentalo de nuevo");
-                                valido2 = false;
-                                sc.nextLine();
-                            }finally{
-                                print();
-                            }
-            
-                        } while (!valido2);
-
-
-                }catch(NoPiezaException e){
-                    valido = false;
-                    sc.nextLine();
-                }catch(InputMismatchException e){
+                } catch (InputMismatchException e) {
                     System.out.println("Entrada invalida. Intentalo de nuevo");
                     valido = false;
-                    sc.nextLine();
-                }catch(Exception e){
-                    System.out.println("Entrada invalida. Intentalo de nuevo");
+
+                } catch (Exception e) {
+                    System.out.println("Error. Intentalo de nuevo");
                     valido = false;
-                    sc.nextLine();
                 }
             }while(!valido);
 
-            //Comprueba si ya gano el jugador actual
-            if(Contador.ganar(turno)){
-                System.out.println("Gana " + turno); //Aqui va el nombre
-                fin = true;
+            //Coloca las piezas
+            inicio();
+
+            while(!fin){
+                //Se acomoda el nombre del jugador al que le toca
+                if (turno) {
+                    j = j1;
+                } else {
+                    j = j2;
+                }
+
+                System.out.println("¿Que pieza quieres mover, " + j + 
+                "? (Escribe columna y fila sin espacios)");
+                print();
+                
+                do{
+                    valido = true;
+                    try{
+
+                        //Si es turno de una persona
+                        if(turno || !com){
+                            //Lee la coordenada que escriba el usuario
+                            coordenada = sc.nextInt();
+                        
+                        //Si es turno de la computadora
+                        }else{
+                            coordenada = rn.nextInt(6)*10 + rn.nextInt(6);
+                        }
+
+                        Pieza selec = tablero[coordenada % 10][coordenada / 10];
+                        //Verifica que la casilla no este vacia
+                        if(selec != null){
+                            
+                            //Verifica que la pieza sea de la persona a la que le toca
+                            if(turno == selec.getColor()){
+
+                                //Selecciona la pieza
+                                selec.setSeleccion(true);
+                                
+                            }else{
+                                throw new NoPiezaException(); 
+                            }
+                        }else{
+                            throw new NoPiezaException();
+                        }
+
+
+                            System.out.println("¿A donde quieres moverla?");
+                            print();
+                
+                            do {
+                                valido2 = true;
+                                
+                                try {
+
+                                    //Si es turno de una persona
+                                    if(turno || !com){
+                                        //Lee la coordenada que escriba el usuario
+                                        nuevaCoor = sc.nextInt();
+                        
+                                    //Si es turno de la computadora
+                                    }else{
+                                        nuevaCoor = rn.nextInt(6)*10 + rn.nextInt(6);
+                                    }
+                                    
+                                    
+                                    //Si no esta en el rango de movimiento de la pieza
+                                    if(!selec.mover(nuevaCoor / 10, nuevaCoor % 10, tablero, com)){
+                                        
+                                        //Si se selecciono otra pieza tuya, se cambia a esa pieza
+                                        if(tablero[nuevaCoor % 10][nuevaCoor / 10].getColor() == turno){
+                                            selec = tablero[nuevaCoor % 10][nuevaCoor / 10];
+
+                                        }
+                                        
+                                        valido2 = false;
+
+
+                                    }
+
+                                }catch(InputMismatchException e){
+                                    System.out.println("Entrada invalida. Intentalo de nuevo");
+                                    valido2 = false;
+                                    sc.nextLine();
+
+                                } catch (NullPointerException e) {
+                                    valido2 = false;
+
+                                } catch (Exception e) {
+                                    System.out.println("Entrada invalida. Intentalo de nuevo");
+                                    valido2 = false;
+                                    
+                                }finally{
+                                    print();
+                                }
+                
+                            } while (!valido2);
+
+
+                    }catch(NoPiezaException e){
+                        valido = false;
+
+                    }catch(InputMismatchException e){
+                        System.out.println("Entrada invalida. Intentalo de nuevo");
+                        valido = false;
+                        sc.nextLine();
+                        
+                    }catch(Exception e){
+                        System.out.println("Entrada invalida. Intentalo de nuevo");
+                        valido = false;
+                    }
+                }while(!valido);
+
+                //Comprueba si ya gano el jugador actual
+                if(Contador.ganar(turno)){
+                    System.out.println("\n ¡¡¡¡Gana " + j + "!!!!\n\n");
+                    fin = true;
+                }
+
+                //Pasa el turno al otro jugador
+                turno = !turno;
+
+                //Descuenta uno al numero de turnos restantes
+                turnos--;
+                //Si ya se acabaron los turnos
+                if(turnos == 0){
+                    //Gana un jugador aleatorio
+                    if(rn.nextBoolean()){
+                        j = j1;
+                    }else{
+                        j = j2;
+                    }
+                    System.out.println("Limite de turnos\n\n ¡¡¡¡Gana " + j + "!!!!\n\n");
+                    fin = true;
+                }
+
+
             }
-
-            //Pasa el turno al otro jugador
-            turno = !turno;
-
-
         }
-    }
             
-
+    }
         
     
 
