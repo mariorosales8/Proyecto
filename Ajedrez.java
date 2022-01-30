@@ -39,7 +39,6 @@ public class Ajedrez {
                 ObjectInputStream obj = new ObjectInputStream(new FileInputStream(".ser"));
                 Serializados ser = (Serializados) obj.readObject();
                 sr = ser.getSerializados();
-System.out.println(sr);
 
             } catch (Exception e) {
                 System.out.println("No hay ningun jugador guardado");
