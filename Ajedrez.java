@@ -121,7 +121,7 @@ System.out.println(sr);
                     }
                 }while(!valido);
             }catch(Exception e){
-                System.out.println("oh no" + e.getMessage());
+                System.out.println("Error. No se pudo acceder a los datos guardados");
             }
 
         //Si hay argumentos
