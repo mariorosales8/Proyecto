@@ -1,3 +1,8 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
@@ -23,12 +28,102 @@ public class Ajedrez {
         String j2 ="";
         boolean com = false;
         int turnos = 200;
+        int sr = 0;
 
 
         //Si no hay argumentos
         if(args.length == 0){
-            //SERIALIZABLEEEEEES
-        
+
+            //Lee cuantos objetos serializados hay
+            try {
+                ObjectInputStream obj = new ObjectInputStream(new FileInputStream(".ser"));
+                Serializados ser = (Serializados) obj.readObject();
+                sr = ser.getSerializados();
+System.out.println(sr);
+
+            } catch (Exception e) {
+                System.out.println("No hay ningun jugador guardado");
+                System.exit(0);
+            }
+
+            try{
+                //Crea un arreglo de los objetos serializados
+                Jugador jugadores[] = new Jugador[sr];
+                //Recorre todos los objetos serializados
+                for(int i=0; i < sr; i++){
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(i + ".jug"));
+                    Jugador jug = (Jugador) in.readObject();
+                    //Los acomoda en el arreglo
+                    jugadores[i] = jug;
+                }
+
+                //Bucle que recorre todo el arreglo hacia atras
+	            for(int i = jugadores.length - 1; i > 0; i--){
+	                //Bucle que recorre el arreglo hasta antes de llegar a los últimos elementos 
+                    //que ya fueron acomodados
+	                for(int k=0; k < i; k++){
+		            //Si el elemento actual es mayor que el siguiente, se intercambian
+		                if(jugadores[k].menorQue(jugadores[k+1])){
+                            Jugador temp = jugadores[k];
+	                        jugadores[k] = jugadores[k+1];
+	                        jugadores[k+1] = temp;
+		                }
+	                }
+	            }
+
+
+            
+                System.out.println("Elige una opcion:\n1) Ver lista completa de jugadores\n2) Ver a los 3 mejores\n3) Ver a los 3 peores\n0) Salir");
+                System.out.println("Para jugar escribe el nombre de los jugadores como parametros");
+
+                do{
+                    valido = true;
+
+                    try {
+                        switch (sc.nextInt()) {
+                            case 1:
+                                //Muestra el arreglo ordenado
+                                for(int i=0; i < sr; i++){
+                                    System.out.println(jugadores[i].getNombre() + ":   \t" + jugadores[i].getVictorias() + " victorias");
+                                }
+                                break;
+
+                            case 2:
+                                //Muestra los 3 mejores
+                                for(int i=0; i < sr && i < 3; i++){
+                                System.out.println(jugadores[i].getNombre() + ":   \t" + jugadores[i].getVictorias() + " victorias");
+                            }
+                                break;
+
+                            case 3:
+                                //Muestra los 3 peores
+                                for(int i=sr-1; i >= 0 && i >= sr-3; i--){
+                                System.out.println(jugadores[i].getNombre() + ":   \t" + jugadores[i].getVictorias() + " victorias");
+                            }
+                                break;
+
+                            case 0:
+                                System.exit(0);
+                        
+                            default:
+                                System.out.println("Entrada invalida. Intentalo de nuevo");
+                                valido = false;
+                                break;
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Entrada invalida. Intentalo de nuevo");
+                        valido = false;
+                        sc.nextLine();
+
+                    } catch (Exception e) {
+                        System.out.println("Error. Intentalo de nuevo");
+                        valido = false;
+                    }
+                }while(!valido);
+            }catch(Exception e){
+                System.out.println("oh no" + e.getMessage());
+            }
+
         //Si hay argumentos
         }else{
             //El primero es el jugador 1
@@ -78,6 +173,7 @@ public class Ajedrez {
                 } catch (InputMismatchException e) {
                     System.out.println("Entrada invalida. Intentalo de nuevo");
                     valido = false;
+                    sc.nextLine();
 
                 } catch (Exception e) {
                     System.out.println("Error. Intentalo de nuevo");
@@ -220,9 +316,52 @@ public class Ajedrez {
                     System.out.println("Limite de turnos\n\n ¡¡¡¡Gana " + j + "!!!!\n\n");
                     fin = true;
                 }
+            //Termina la partida
 
+            //Lee cuantos objetos serializados hay
+            }try {
+                ObjectInputStream obj = new ObjectInputStream(new FileInputStream(".ser"));
+                Serializados ser = (Serializados) obj.readObject();
+                sr = ser.getSerializados();
+
+            } catch (Exception e) {}
+            
+            try {
+                //Recorre todos los objetos serializados
+                for(int i=0; i < sr; i++){
+                    ObjectInputStream in = new ObjectInputStream(new FileInputStream(i + ".jug"));
+                    //Comprueba si su nombre es el mismo que el del ganador
+                    Jugador jug = (Jugador) in.readObject();
+                    if(jug.getNombre().equals(j)){
+                        //Le suma una victoria
+                        jug.setVictorias(jug.getVictorias() + 1);
+                        //Lo sobreescribe
+                        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(i + ".jug"));
+                        out.writeObject(jug);
+                        //Termina el programa
+                        System.exit(0);
+                    }
+                }//Si no hay ningun jugador con el nombre del ganador, crea uno nuevo
+                Jugador gan = new Jugador(j);
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream((sr) + ".jug"));
+                out.writeObject(gan); 
+
+
+                //Le suma 1 al numero de objetos serializados
+                Serializados ser = new Serializados();
+                ser.setSerializados(sr + 1);
+                //Lo sobreescribe
+                ObjectOutputStream obj = new ObjectOutputStream(new FileOutputStream(".ser"));
+                obj.writeObject(ser);
+                
+            }catch(Exception e){
+                System.out.println("No se pudo guardar al ganador");
+
+            }finally{
 
             }
+
+            
         }
             
     }
